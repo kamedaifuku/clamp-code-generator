@@ -208,3 +208,177 @@ const initClampGenerater = () => {
 }
 
 /* ▲ ここまでclamp生成処理▲ */
+
+/* ビューポートを固定するインスタンスを生成するクラス
+  ------------------------------------------*/
+class FixedViewportForMobile {
+  static CONFIG = {
+    META_NAME: 'meta[name="viewport"]',
+    DEFAULT_WIDTH: 768
+  }
+  constructor() {
+    this.viewportMeta = document.querySelector(FixedViewportForMobile.CONFIG.META_NAME);
+    if (!this.viewportMeta) throw new Error('<meta name="viewport">がHTMLに定義されていません');
+    this.currentContent = this.viewportMeta.content;
+    this.changeViewPort();
+    this.initEventListeners();
+  }
+
+  //イベントリスナー初期設定
+  initEventListeners() {
+    window.addEventListener('resize', () => {
+      const DELAY = 25;
+      clearTimeout(this.timeoutID);
+      this.timeoutID = setTimeout(() => this.changeViewPort(), DELAY);
+    });
+  }
+
+  // ビューポートの値を変更する処理
+  changeViewPort() {
+    const mobileWidth = parseInt(this.viewportMeta.dataset.mobileWidth) || FixedViewportForMobile.CONFIG.DEFAULT_WIDTH;
+    if (!mobileWidth) return;
+    const newContent = (window.outerWidth < mobileWidth) ? `width=${mobileWidth}` : this.currentContent;
+    this.viewportMeta.content = newContent;
+  }
+}
+
+/* インスタンスの初期化処理
+  ------------------------------------------*/
+const initFixedViewportForMobile = () => {
+  try {
+    return new FixedViewportForMobile()
+  } catch (error) {
+    console.error(`[${FixedViewportForMobile.name}]:${error.message}`);
+    return null;
+  }
+}
+
+/* ▲ ここまでビューポートの固定処理 ▲ */
+
+/* モーダル制御処理を作成するクラス
+  ------------------------------------------*/
+class MyModalDialog {
+  static CLASSES = {
+    MODAL: 'js-modal__target',
+    OPEN: 'js-modal__open',
+    CLOSE: 'js-modal__close',
+    ANCESTOR_ANCHOR: 'js-anchors',
+    IS_SHOW: 'is-show'
+  };
+  static FOCUSABLE_ARGS = 'button, input, [href], select, textarea, summary, [tabindex]:not([tabindex="-1"])';
+
+  constructor(modalElement) {
+    this.modalElement = this.assignElementOrThrowError(modalElement);
+    this.modalName = this.modalElement.dataset.name || this.throwUndefinedError(this.modalElement);
+    this.openElement = this.getElementHasDataName(MyModalDialog.CLASSES.OPEN, this.modalName) || this.throwNullError(MyModalDialog.CLASSES.OPEN, this.modalName);
+    this.closeElement = this.getElementHasDataName(MyModalDialog.CLASSES.CLOSE, this.modalName) || this.throwNullError(MyModalDialog.CLASSES.CLOSE, this.modalName);
+    this.ancestorAnchorElement = this.getElementHasDataName(MyModalDialog.CLASSES.ANCESTOR_ANCHOR, this.modalName);
+
+    this.isOpen = false;
+    this.focusableElements = [...this.modalElement.querySelectorAll(MyModalDialog.FOCUSABLE_ARGS)];
+    this.firstFocusableElement = this.focusableElements[0];
+    this.lastFocusableElement = this.focusableElements[this.focusableElements.length - 1];
+
+    this.initEventListeners();
+  }
+
+  //イベントリスナーの初期化
+  initEventListeners() {
+    this.openElement.addEventListener('click', () => this.openModal());
+    this.closeElement.addEventListener('click', () => this.closeModal());
+    this.modalElement.addEventListener('click', event => event.target === event.currentTarget && this.closeModal());
+    if (this.ancestorAnchorElement) this.ancestorAnchorElement.addEventListener('click', event => this.closeModalIfLinkClicked(event));
+  }
+
+  // モーダルのオンオフを制御
+  openModal() {
+    this.modalElement.showModal();
+    this.firstFocusableElement.focus();
+    this.isOpen = true;
+  }
+  closeModal() {
+    this.modalElement.close();
+    this.isOpen = false;
+  }
+
+  // モーダル内のリンクをクリックした場合も閉じる
+  closeModalIfLinkClicked(event) {
+    const isLinkClicked = event.target.closest('a');
+    if (!isLinkClicked) return;
+    this.closeModal();
+  }
+
+  // *** DOMから取得した要素の検証処理 ***
+  //要素の場合のみ代入
+  assignElementOrThrowError(element) {
+    if (element instanceof HTMLElement) {
+      return element;
+    } else {
+      throw new Error(`コンストラクターで要素以外の値が渡されました`);
+    }
+  }
+
+  // 特定のデータ属性を持つ要素の取得処理
+  getElementHasDataName(className, dataName) {
+    return document.querySelector(`.${className}[data-name="${dataName}"]`);
+  }
+
+  //引数がundefinedの場合はエラー
+  throwUndefinedError(element) {
+    throw new Error(`class="${element.classList}"のモーダルの要素に[data-name]属性が未設定です`);
+  }
+
+  // 要素が見つからない場合はエラー
+  throwNullError(className, dataName) {
+    throw new Error(`data-name="${dataName}", class="${className}"の要素が見つかりません`);
+  }
+}
+
+/* モーダルの制御処理を一括で初期化
+  ------------------------------------------*/
+const initModals = () => {
+  const modalElements = [...document.querySelectorAll(`dialog.${MyModalDialog.CLASSES.MODAL}`)];
+  const modals = modalElements.map(modalElement => {
+    try {
+      return new MyModalDialog(modalElement);
+    } catch (error) {
+      console.error(`[${MyModalDialog.name}]インスタンスの生成に失敗しました:${error.message}`);
+      return null;
+    }
+  });
+  return modals;
+};
+
+/* ▲ ここまでモーダルの生成処理 ▲ */
+
+/* 日本語以外の言語環境の設定反映処理
+  ------------------------------------------*/
+class Bilingual {
+  static EN_SWITCH = 'js-en-switch';
+
+  constructor() {
+    this.englishSwitch = document.querySelector(`.${Bilingual.EN_SWITCH}`);
+    this.isJapanese = (window.navigator.language === 'ja');
+    if (!this.isJapanese) this.englishSwitch.checked = true;
+  }
+}
+
+//インスタンス初期化処理
+const initBilingual = () => {
+  try {
+    return new Bilingual()
+  } catch (error) {
+    console.error(`[${Bilingual.name}]:${error.message}`);
+    return null;
+  }
+}
+
+/* ▲ ここまで言語環境設定の固定処理 ▲ */
+const appInstances = {};
+const initAll = () => {
+  appInstances.clampGenerater = initClampGenerater();
+  appInstances.fixedViewportForMobile = initFixedViewportForMobile();
+  appInstances.modals = initModals();
+  appInstances.bilingual = initBilingual();
+}
+initAll();
