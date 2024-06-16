@@ -1,0 +1,2 @@
+# .vscodeのsettings.jsonは監視対象外にする
+.vscode/settings.json
