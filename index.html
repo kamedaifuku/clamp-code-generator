@@ -40,7 +40,9 @@
   <!-- google fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Yusei+Magic&family=Zen+Maru+Gothic&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Yusei+Magic&family=Zen+Maru+Gothic&display=swap"
+    rel="stylesheet">
 
   <!-- オリジナル -->
   <link rel="stylesheet" href="css/style.css" media="print" onload="this.media='all'">
@@ -64,12 +66,14 @@
       </hgroup>
 
       <div class="p-display-settings">
+        <label class="c-settings-switch">
+          <span class="c-lang-switch__button"></span>
+          <input type="checkbox" id="is-en" class="c-settings-switch__hidden js-en-switch">
+          <span class="c-settings-switch__label">lang</span>
+        </label>
         <div class="c-settings-switch">
-          <input type="checkbox" id="is-en" class="c-lang-switch__button js-en-switch">
-          <label for="is-en" class="c-settings-switch__label">lang</label>
-        </div>
-        <div class="c-settings-switch">
-          <input type="checkbox" id="is-dark-theme" class="c-theme-switch__button" checked>
+          <span class="c-theme-switch__button"></span>
+          <input type="checkbox" id="is-dark-theme" class="c-settings-switch__hidden" checked>
           <label for="is-dark-theme" class="c-settings-switch__label">mode</label>
         </div>
       </div>
