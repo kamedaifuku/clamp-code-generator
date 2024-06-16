@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <meta name="color-scheme" content="dark light">
+  <title>Clamp Code Generator</title>
+  <meta name="description" content="">
+
+  <!-- 正規ページのURL -->
+  <link rel="canonical" href="">
+
+  <!-- ファビコン -->
+  <link rel="icon" href="images/favicon.ico" sizes="any">
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+
+
+  <!-- OGP -->
+  <meta property="og:url" content="">
+  <meta property="og:type" content="">
+  <meta property="og:title" content="">
+  <meta property="og:description" content="">
+  <meta property="og:site_name" content="">
+  <meta property="og:image" content="">
+  <meta property="og:locale" content="ja_JP">
+
+  <!-- OGP Facebook -->
+  <meta property="fb:app_id" content="">
+
+  <!-- OGP Twitter -->
+  <meta name="twitter:card" content="">
+  <meta name="twitter:site" content="">
+  <meta name="twitter:creator" content="">
+  <meta name="twitter:title" content="">
+  <meta name="twitter:description" content="">
+  <meta name="twitter:image" content="">
+
+  <!-- css -->
+  <!-- google fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Yusei+Magic&family=Zen+Maru+Gothic&display=swap" rel="stylesheet">
+
+  <!-- オリジナル -->
+  <link rel="stylesheet" href="css/style.css" media="print" onload="this.media='all'">
+
+  <!-- javascript -->
+  <script src="js/main.js" defer></script>
+</head>
+
+<body>
+  <div class="l-body-wrapper">
+    <header class="l-header p-header">
+      <hgroup class="c-title">
+        <h1>
+          <span class="c-lang-ja">clamp()コード生成ツール</span>
+          <span class="c-lang-en">clamp() Code Generator</span>
+        </h1>
+        <p>
+          <span class="c-lang-ja">レスポンシブデザインで多用するclamp関数のコードを簡単に生成できます。</span>
+          <span class="c-lang-en">Easily generate code for clamp(), a function commonly used in responsive
+            design.</span>
+        </p>
+      </hgroup>
+
+      <div class="p-display-settings">
+        <div class="c-settings-switch">
+          <input type="checkbox" id="is-en" class="c-lang-switch__button js-en-switch">
+          <label for="is-en" class="c-settings-switch__label">lang</label>
+        </div>
+        <div class="c-settings-switch">
+          <input type="checkbox" id="is-dark-theme" class="c-theme-switch__button" checked>
+          <label for="is-dark-theme" class="c-settings-switch__label">mode</label>
+        </div>
+      </div>
+    </header>
+    <main class="l-main p-main">
+      <div class="p-inputs">
+        <ul class="p-inputs__list js-inputs">
+          <li class="p-inputs__item">
+            <p class="c-item-name">
+              <span class="c-lang-ja">サイズ</span>
+              <span class="c-lang-en">Size</span>
+            </p>
+            <div class="c-input">
+              <label for="min-size" class="c-input__label">
+                <span class="c-lang-ja">最小</span>
+                <span class="c-lang-en">Min</span>
+              </label>
+              <input type="number" id="min-size" name="minSize" value="16" min="-1000" max="1000"
+                class="c-input__number">
+            </div>
+            <div class="c-input">
+              <label for="max-size" class="c-input__label">
+                <span class="c-lang-ja">最大</span>
+                <span class="c-lang-en">Max</span>
+              </label>
+              <input type="number" id="max-size" name="maxSize" value="32" min="-1000" max="1000"
+                class="c-input__number">
+            </div>
+            <div class="c-switches">
+              <div class="c-switch">
+                <label for="size-px" class="c-switch__label">px</label>
+                <input type="radio" id="size-px" name="unitSize" class="c-switch__hidden" value="px" checked>
+              </div>
+              <div class="c-switch">
+                <label for="size-rem" class="c-switch__label">rem</label>
+                <input type="radio" id="size-rem" name="unitSize" value="rem" class="c-switch__hidden">
+              </div>
+            </div>
+          </li>
+          <li class="p-inputs__item">
+            <p class="c-item-name">
+              <span class="c-lang-ja">ビューポート</span>
+              <span class="c-lang-en">Viewport</span>
+            </p>
+            <div class="c-input">
+              <label for="min-vp" class="c-input__label">
+                <span class="c-lang-ja">最小</span>
+                <span class="c-lang-en">Min</span>
+              </label>
+              <input type="number" id="min-vp" name="minVp" value="768" min="100" max="10000" class="c-input__number">
+            </div>
+            <div class="c-input">
+              <label for="max-vp" class="c-input__label">
+                <span class="c-lang-ja">最大</span>
+                <span class="c-lang-en">Max</span>
+              </label>
+              <input type="number" id="max-vp" name="maxVp" value="1920" min="100" max="10000" class="c-input__number">
+            </div>
+            <div class="c-switches">
+              <div class="c-switch">
+                <label for="vp-px" class="c-switch__label">px</label>
+                <input type="radio" id="vp-px" name="unitVp" class="c-switch__hidden" value="px" checked>
+              </div>
+              <div class="c-switch">
+                <label for="vp-rem" class="c-switch__label">rem</label>
+                <input type="radio" id="vp-rem" name="unitVp" class="c-switch__hidden" value="rem">
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="p-output">
+        <div class="p-output__codes js-output-area">
+          <p class="p-output__code m-func"></p>
+          <p class="p-output__code m-comment"></p>
+        </div>
+        <div class="p-output__button-box">
+          <button type="button" class="p-output__button js-output-button">copy</button>
+          <div class="p-output__results">Copied!!</div>
+        </div>
+      </div>
+
+      <div class="p-others">
+        <fieldset class="p-option">
+          <legend class="p-option__legend">
+            <span class="c-lang-ja">出力オプション</span>
+            <span class="c-lang-en">Output Options</span>
+          </legend>
+          <div class="p-option__container">
+            <div class="p-option__group">
+              <p class="c-option__name">
+                <span class="c-lang-ja">単位</span>
+                <span class="c-lang-en">Units</span>
+              </p>
+              <div class="c-switches js-output-units">
+                <div class="c-switch">
+                  <label for="output-px" class="c-switch__label">px</label>
+                  <input type="radio" id="output-px" name="output-switch" class="c-switch__hidden" value="px">
+                </div>
+                <div class="c-switch">
+                  <label for="output-rem" class="c-switch__label">rem</label>
+                  <input type="radio" id="output-rem" name="output-switch" class="c-switch__hidden" value="rem" checked>
+                </div>
+              </div>
+            </div>
+            <div class="p-option__group c-options js-output-comment">
+              <p class="c-option__name">
+                <span class="c-lang-ja">補足コメント</span>
+                <span class="c-lang-en">Supplement</span>
+              </p>
+              <ul class="c-switches">
+                <li class="c-switch">
+                  <label for="comment-off" class="c-switch__label">
+                    <span class="c-lang-ja">無し</span>
+                    <span class="c-lang-en">OFF</span>
+                  </label>
+                  <input type="radio" id="comment-off" name="comment-option" class="c-switch__hidden" value="false"
+                    checked>
+                </li>
+                <li class="c-switch">
+                  <label for="comment-on" class="c-switch__label">
+                    <span class="c-lang-ja">表示</span>
+                    <span class="c-lang-en">ON</span>
+                  </label>
+                  <input type="radio" id="comment-on" name="comment-option" class="c-switch__hidden" value="true">
+                </li>
+              </ul>
+            </div>
+            <div class="p-option__group m-column-full">
+              <p class="c-option__name">
+                <span class="c-lang-ja">プロパティ</span>
+                <span class="c-lang-en">Property</span>
+              </p>
+              <ul class="c-option__list js-output-property">
+                <li class="c-switch">
+                  <label for="option-none" class="c-switch__label">
+                    <span class="c-lang-ja">未指定</span>
+                    <span class="c-lang-en">Unspecified</span>
+                  </label>
+                  <input type="radio" id="option-none" name="output-option" class="c-switch__hidden" value="none"
+                    checked>
+                </li>
+                <li class="c-switch">
+                  <label for="option-font" class="c-switch__label">font-size</label>
+                  <input type="radio" id="option-font" name="output-option" class="c-switch__hidden" value="font-size">
+                </li>
+                <li class="c-switch">
+                  <label for="option-width" class="c-switch__label">width</label>
+                  <input type="radio" id="option-width" name="output-option" class="c-switch__hidden" value="width">
+                </li>
+                <li class="c-switch">
+                  <label for="option-height" class="c-switch__label">height</label>
+                  <input type="radio" id="option-height" name="output-option" class="c-switch__hidden" value="height">
+                </li>
+              </ul>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="p-preview">
+          <button type="button" class="p-preview__button js-modal__open" data-name="preview">
+            <span class="c-lang-ja">プレビュー</span>
+            <span class="c-lang-en">Preview</span>
+          </button>
+        </div>
+      </div>
+    </main>
+    <dialog class="l-modal p-modal js-modal__target" data-name="preview">
+      <div class="p-preview-modal">
+        <button type="button" class="p-preview__button js-modal__close" data-name="preview">close</button>
+      </div>
+    </dialog>
+    <footer class="l-footer p-footer">
+    </footer>
+  </div>
+</body>
+
+</html>
