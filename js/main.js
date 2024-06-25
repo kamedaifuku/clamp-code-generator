@@ -66,7 +66,7 @@ class ClampGenerator {
       const name = input.name;
       const category = (name.includes(CATEGORIES[0])) ? CATEGORIES[0] : CATEGORIES[1];
       const isRem = (this.currentUnits[category] === 'rem');
-      const pxValue = (isRem) ? this.convertRemToPX(displayValue) : parseInt(displayValue);
+      const pxValue = (isRem) ? this.convertRemToPx(displayValue) : parseInt(displayValue);
       return { name, input, category, displayValue, pxValue };
     });
 
