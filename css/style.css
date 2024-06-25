@@ -172,14 +172,19 @@ body {
 .l-body-wrapper {
   display: grid;
   justify-items: center;
-  padding-inline: 1.5rem;
   gap: 1.5rem;
+  overflow: clip;
+  padding-inline: 2rem;
 }
 
 .l-header,
 .l-main,
 .l-footer {
   width: var(--content-width);
+}
+
+.l-modal {
+  place-self: center;
 }
 
 /* component */
@@ -208,6 +213,11 @@ body {
   &>h1 {
     font-family: var(--font-decorative);
     font-size: 3em;
+  }
+
+  &>h2 {
+    font-family: var(--font-decorative);
+    font-size: 2em;
   }
 }
 
@@ -416,7 +426,7 @@ body {
     color: var(--color-black);
   }
 
-  .c-switch:has(:focus-within) & {
+  .c-switch:has(:focus-visible) & {
     box-shadow: 0 0 1px 3px var(--color-accent);
   }
 
@@ -429,7 +439,12 @@ body {
   }
 
   .c-switch:not(:first-child) & {
-    border-left: none;
+    margin-left: -1px;
+    border-left-color: transparent;
+
+    &:hover {
+      border-left-color: currentcolor;
+    }
   }
 }
 
@@ -449,7 +464,27 @@ body {
   display: flex;
 }
 
+.c-close-button {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  aspect-ratio: 1/ 1;
+  opacity: 0.8;
+  border-radius: 50%;
+  border: 0.125rem solid var(--color-main-dark30-50);
+  font-family: var(--font-decorative);
+  line-height: 100%;
+  color: var(--color-main-dark30);
+  transition: all 0.25s linear;
 
+  &:is(:hover, :focus-within) {
+    opacity: 1;
+    border-color: var(--color-main);
+    box-shadow: 0 0 0.1rem 0.1rem var(--color-white);
+    background: var(--color-main);
+    color: var(--color-white);
+  }
+}
 
 /* project */
 .p-header {
@@ -629,12 +664,12 @@ body {
   }
 }
 
-.p-preview {
+.p-preview-controller {
   flex-shrink: 0;
   margin-top: 0.5rem;
 }
 
-.p-preview__button {
+.p-preview-controller__button {
   display: grid;
   place-items: center;
   width: 6.5rem;
@@ -657,24 +692,50 @@ body {
 }
 
 .p-modal {
+  display: grid;
+  place-items: center;
+  z-index: -100;
+  width: 100%;
+  max-width: 100%;
+  height: 100vh;
+  max-height: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.5s;
+  clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+  border: none;
+  outline: none;
+  box-shadow: none;
+  outline-offset: 0;
+  background: var(--color-background-50);
 
-  &[open] {
-    display: grid;
-    place-items: center;
+  ::backdrop {
+    display: none;
   }
 
-  &::backdrop {
-    background: var(--color-main-50);
+  &[open] {
+    z-index: 100;
+    visibility: visible;
+    opacity: 1;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
   }
 }
 
-
-
 .p-preview-modal {
-  width: 40rem;
-  min-height: 20rem;
-  background: red;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  width: 100%;
+  min-height: 30rem;
+  padding: 2rem;
+  background: var(--color-background);
+}
 
+.p-preview-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: min(100%, var(--content-width));
 }
 
 /* animation */
