@@ -8,8 +8,7 @@ class ClampGenerator {
     output_property: 'js-output-property',
     output_comment: 'js-output-comment',
     output_area: 'js-output-area',
-    output_button: 'js-output-button',
-
+    output_button: 'js-output-button'
   };
   static PX_TO_REM_RATIO = 0.0625;
 
@@ -25,15 +24,17 @@ class ClampGenerator {
 
   //イベントリスナー初期設定
   initEventListeners() {
-    this.targets.inputs.addEventListener('change', event => {
+    this.targets.inputs.addEventListener('change', (event) => {
       const target = event.target;
-      (target.type === 'radio') ? this.toggleInputUnit(target) : this.updatePxValue(target);
+      target.type === 'radio' ? this.toggleInputUnit(target) : this.updatePxValue(target);
       this.updateOutputText();
     });
     this.targets.output_units.addEventListener('change', () => this.updateOutputText());
     this.targets.output_property.addEventListener('change', () => this.updateOutputText());
     this.targets.output_comment.addEventListener('change', () => this.updateOutputText());
-    this.targets.output_button.addEventListener('click', event => this.copyClampFuncToClipBoard(this.outputTextData, event.target));
+    this.targets.output_button.addEventListener('click', (event) =>
+      this.copyClampFuncToClipBoard(this.outputTextData, event.target)
+    );
   }
 
   //CLASS_NAMESで定義した要素を一括取得するメソッド
@@ -61,12 +62,12 @@ class ClampGenerator {
   initializeData(inputs) {
     const numberInputs = [...inputs.querySelectorAll('input[type="number"]')];
     const CATEGORIES = ['Size', 'Vp'];
-    const data = numberInputs.map(input => {
+    const data = numberInputs.map((input) => {
       const displayValue = parseFloat(input.value);
       const name = input.name;
-      const category = (name.includes(CATEGORIES[0])) ? CATEGORIES[0] : CATEGORIES[1];
-      const isRem = (this.currentUnits[category] === 'rem');
-      const pxValue = (isRem) ? this.convertRemToPx(displayValue) : parseInt(displayValue);
+      const category = name.includes(CATEGORIES[0]) ? CATEGORIES[0] : CATEGORIES[1];
+      const isRem = this.currentUnits[category] === 'rem';
+      const pxValue = isRem ? this.convertRemToPx(displayValue) : parseInt(displayValue);
       return { name, input, category, displayValue, pxValue };
     });
 
@@ -79,22 +80,22 @@ class ClampGenerator {
     const newUnit = target.value;
     const key = target.name.replace(REMOVE_STR, '');
     this.currentUnits[key] = newUnit;
-    const filteredData = this.inputData.filter(data => data.category === key);
+    const filteredData = this.inputData.filter((data) => data.category === key);
     for (const data of filteredData) {
       const pxValue = data.pxValue;
-      data.displayValue = (newUnit === 'rem') ? this.customRounded(this.convertPxToRem(pxValue)) : pxValue;
+      data.displayValue = newUnit === 'rem' ? this.customRounded(this.convertPxToRem(pxValue)) : pxValue;
       data.input.value = data.displayValue;
     }
   }
 
   //入力値の更新
   updatePxValue(target) {
-    const changedData = this.inputData.find(data => data.name === target.name);
-    const isRem = (this.currentUnits[changedData.category] === 'rem');
-    const newValue = (isRem) ? parseFloat(target.value) || 0 : parseInt(target.value) || 0;
+    const changedData = this.inputData.find((data) => data.name === target.name);
+    const isRem = this.currentUnits[changedData.category] === 'rem';
+    const newValue = isRem ? parseFloat(target.value) || 0 : parseInt(target.value) || 0;
     target.value = newValue;
     changedData.displayValue = newValue;
-    changedData.pxValue = (isRem) ? this.convertRemToPx(newValue) : newValue;
+    changedData.pxValue = isRem ? this.convertRemToPx(newValue) : newValue;
   }
 
   //数値のPX<>REM変換
@@ -134,28 +135,30 @@ class ClampGenerator {
     if (vpDifference === 0) return null;
 
     const slope = sizeDifference / vpDifference;
-    const intercept = values.minSize - (values.minVp * slope);
-    const sign = (intercept < 0) ? '-' : '+';
+    const intercept = values.minSize - values.minVp * slope;
+    const sign = intercept < 0 ? '-' : '+';
 
-    const minSizeStr = `${(isRem ? this.convertPxToRem(values.minSize) : values.minSize)}${outputUnit}`;
-    const maxSizeStr = `${(isRem ? this.convertPxToRem(values.maxSize) : values.maxSize)}${outputUnit}`;
+    const minSizeStr = `${isRem ? this.convertPxToRem(values.minSize) : values.minSize}${outputUnit}`;
+    const maxSizeStr = `${isRem ? this.convertPxToRem(values.maxSize) : values.maxSize}${outputUnit}`;
     const slopeStr = `${this.customRounded(slope * 100)}vw`;
-    const interceptStr = `${Math.abs(this.customRounded((isRem) ? this.convertPxToRem(intercept) : intercept))}${outputUnit}`;
+    const interceptStr = `${Math.abs(
+      this.customRounded(isRem ? this.convertPxToRem(intercept) : intercept)
+    )}${outputUnit}`;
     const clampFunc = `clamp(${minSizeStr}, ${slopeStr} ${sign} ${interceptStr}, ${maxSizeStr})`;
-    const outputFunc = (outputProperty === 'none') ? clampFunc : `${outputProperty}: ${clampFunc};`;
+    const outputFunc = outputProperty === 'none' ? clampFunc : `${outputProperty}: ${clampFunc};`;
     const comment = `/* size: ${values.minSize}px -> ${values.maxSize}px, viewport: ${values.minVp}px -> ${values.maxVp}px */`;
     this.clampData = { slope, intercept, clampFunc };
-    return (isShowComment) ? [outputFunc, comment] : [outputFunc];
+    return isShowComment ? [outputFunc, comment] : [outputFunc];
   }
 
   //出力テキスト更新処理
   overwriteOutputText(argsData) {
     const IS_ERROR = 'is-error';
     const textData = argsData || this.setErrorText();
-    const outputElements = [... this.targets.output_area.querySelectorAll('p')];
+    const outputElements = [...this.targets.output_area.querySelectorAll('p')];
     for (const [index, element] of outputElements.entries()) {
       element.textContent = textData[index];
-      (!argsData) ? element.classList.add(IS_ERROR) : element.classList.remove(IS_ERROR);
+      !argsData ? element.classList.add(IS_ERROR) : element.classList.remove(IS_ERROR);
     }
   }
 
@@ -163,11 +166,13 @@ class ClampGenerator {
   setErrorText() {
     const ERROR_TEXT = {
       JP: ['ビューポートの最小値と最大値の差が0のため、clamp関数を生成できません'],
-      EN: ["The difference between the viewport's minimum and maximum values ​​is 0, so a clamp function can't be generated."],
+      EN: [
+        "The difference between the viewport's minimum and maximum values ​​is 0, so a clamp function can't be generated."
+      ]
     };
     if (typeof Bilingual.EN_SWITCH !== 'string') return ERROR_TEXT.JP;
     const isEn = document.querySelector(`.${Bilingual.EN_SWITCH}`).checked;
-    return (isEn) ? ERROR_TEXT.EN : ERROR_TEXT.JP;
+    return isEn ? ERROR_TEXT.EN : ERROR_TEXT.JP;
   }
 
   // クリップボードにclamp式をコピーする
@@ -175,7 +180,7 @@ class ClampGenerator {
     if (!textData) return;
     const IS_ACTIVE = 'is-active';
     const resultsPopup = target.nextElementSibling;
-    const copyingText = (textData.length === 2) ? `${textData[0]}\n${textData[1]}` : `${textData[0]}`;
+    const copyingText = textData.length === 2 ? `${textData[0]}\n${textData[1]}` : `${textData[0]}`;
     await navigator.clipboard.writeText(copyingText);
     resultsPopup.classList.add(IS_ACTIVE);
     target.disabled = true;
@@ -193,19 +198,19 @@ class ClampGenerator {
 
   // pxベースの入力値取得処理
   getPxValue(name) {
-    return this.inputData.find(data => data.name === name).pxValue;
+    return this.inputData.find((data) => data.name === name).pxValue;
   }
 }
 
 //インスタンス初期化処理
 const initClampGenerater = () => {
   try {
-    return new ClampGenerator()
+    return new ClampGenerator();
   } catch (error) {
     console.error(`[${ClampGenerator.name}]:${error.message}`);
     return null;
   }
-}
+};
 
 /* ▲ ここまでclamp生成処理▲ */
 
@@ -215,7 +220,7 @@ class FixedViewportForMobile {
   static CONFIG = {
     META_NAME: 'meta[name="viewport"]',
     DEFAULT_WIDTH: 768
-  }
+  };
   constructor() {
     this.viewportMeta = document.querySelector(FixedViewportForMobile.CONFIG.META_NAME);
     if (!this.viewportMeta) throw new Error('<meta name="viewport">がHTMLに定義されていません');
@@ -237,7 +242,7 @@ class FixedViewportForMobile {
   changeViewPort() {
     const mobileWidth = parseInt(this.viewportMeta.dataset.mobileWidth) || FixedViewportForMobile.CONFIG.DEFAULT_WIDTH;
     if (!mobileWidth) return;
-    const newContent = (window.outerWidth < mobileWidth) ? `width=${mobileWidth}` : this.currentContent;
+    const newContent = window.outerWidth < mobileWidth ? `width=${mobileWidth}` : this.currentContent;
     this.viewportMeta.content = newContent;
   }
 }
@@ -246,12 +251,12 @@ class FixedViewportForMobile {
   ------------------------------------------*/
 const initFixedViewportForMobile = () => {
   try {
-    return new FixedViewportForMobile()
+    return new FixedViewportForMobile();
   } catch (error) {
     console.error(`[${FixedViewportForMobile.name}]:${error.message}`);
     return null;
   }
-}
+};
 
 /* ▲ ここまでビューポートの固定処理 ▲ */
 
@@ -270,8 +275,12 @@ class MyModalDialog {
   constructor(modalElement) {
     this.modalElement = this.assignElementOrThrowError(modalElement);
     this.modalName = this.modalElement.dataset.name || this.throwUndefinedError(this.modalElement);
-    this.openElement = this.getElementHasDataName(MyModalDialog.CLASSES.OPEN, this.modalName) || this.throwNullError(MyModalDialog.CLASSES.OPEN, this.modalName);
-    this.closeElement = this.getElementHasDataName(MyModalDialog.CLASSES.CLOSE, this.modalName) || this.throwNullError(MyModalDialog.CLASSES.CLOSE, this.modalName);
+    this.openElement =
+      this.getElementHasDataName(MyModalDialog.CLASSES.OPEN, this.modalName) ||
+      this.throwNullError(MyModalDialog.CLASSES.OPEN, this.modalName);
+    this.closeElement =
+      this.getElementHasDataName(MyModalDialog.CLASSES.CLOSE, this.modalName) ||
+      this.throwNullError(MyModalDialog.CLASSES.CLOSE, this.modalName);
     this.ancestorAnchorElement = this.getElementHasDataName(MyModalDialog.CLASSES.ANCESTOR_ANCHOR, this.modalName);
 
     this.isOpen = false;
@@ -286,8 +295,9 @@ class MyModalDialog {
   initEventListeners() {
     this.openElement.addEventListener('click', () => this.openModal());
     this.closeElement.addEventListener('click', () => this.closeModal());
-    this.modalElement.addEventListener('click', event => event.target === event.currentTarget && this.closeModal());
-    if (this.ancestorAnchorElement) this.ancestorAnchorElement.addEventListener('click', event => this.closeModalIfLinkClicked(event));
+    this.modalElement.addEventListener('click', (event) => event.target === event.currentTarget && this.closeModal());
+    if (this.ancestorAnchorElement)
+      this.ancestorAnchorElement.addEventListener('click', (event) => this.closeModalIfLinkClicked(event));
   }
 
   // モーダルのオンオフを制御
@@ -338,7 +348,7 @@ class MyModalDialog {
   ------------------------------------------*/
 const initModals = () => {
   const modalElements = [...document.querySelectorAll(`dialog.${MyModalDialog.CLASSES.MODAL}`)];
-  const modals = modalElements.map(modalElement => {
+  const modals = modalElements.map((modalElement) => {
     try {
       return new MyModalDialog(modalElement);
     } catch (error) {
@@ -358,7 +368,7 @@ class Bilingual {
 
   constructor() {
     this.englishSwitch = document.querySelector(`.${Bilingual.EN_SWITCH}`);
-    this.isJapanese = (window.navigator.language === 'ja');
+    this.isJapanese = window.navigator.language === 'ja';
     if (!this.isJapanese) this.englishSwitch.checked = true;
   }
 }
@@ -366,12 +376,12 @@ class Bilingual {
 //インスタンス初期化処理
 const initBilingual = () => {
   try {
-    return new Bilingual()
+    return new Bilingual();
   } catch (error) {
     console.error(`[${Bilingual.name}]:${error.message}`);
     return null;
   }
-}
+};
 
 /* ▲ ここまで言語環境設定の固定処理 ▲ */
 const appInstances = {};
@@ -380,5 +390,5 @@ const initAll = () => {
   appInstances.fixedViewportForMobile = initFixedViewportForMobile();
   appInstances.modals = initModals();
   appInstances.bilingual = initBilingual();
-}
+};
 initAll();
