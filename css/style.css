@@ -4,82 +4,82 @@
 *::after {
   margin: 0;
   padding: 0;
-  box-sizing: border-box
+  box-sizing: border-box;
 }
 
-:where([hidden]:not([hidden='until-found'])) {
-  display: none !important
+:where([hidden]:not([hidden="until-found"])) {
+  display: none !important;
 }
 
 :where(html) {
   -webkit-text-size-adjust: none;
   color-scheme: dark light;
-  tab-size: 2
+  tab-size: 2;
 }
 
-@media (prefers-reduced-motion:no-preference) {
+@media (prefers-reduced-motion: no-preference) {
   :where(html:focus-within) {
-    scroll-behavior: smooth
+    scroll-behavior: smooth;
   }
 }
 
 :where(body) {
   line-height: 1.5;
   font-family: system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased
+  -webkit-font-smoothing: antialiased;
 }
 
 :where(button) {
-  all: unset
+  all: unset;
 }
 
 :where(input, button, textarea, select) {
   font: inherit;
-  color: inherit
+  color: inherit;
 }
 
 :where(textarea) {
   resize: vertical;
-  resize: block
+  resize: block;
 }
 
-:where(button, label, select, summary, [role='button'], [role='option']) {
-  cursor: pointer
+:where(button, label, select, summary, [role="button"], [role="option"]) {
+  cursor: pointer;
 }
 
 :where(:disabled) {
-  cursor: not-allowed
+  cursor: not-allowed;
 }
 
-:where(label:has(>input:disabled), label:has(+input:disabled)) {
-  cursor: not-allowed
+:where(label:has(> input:disabled), label:has(+ input:disabled)) {
+  cursor: not-allowed;
 }
 
 :where(a) {
   color: inherit;
-  text-underline-offset: .2ex
+  text-underline-offset: 0.2ex;
 }
 
 :where(ul, ol) {
-  list-style: none
+  list-style: none;
 }
 
 :where(img, svg, video, canvas, audio, iframe, embed, object) {
-  display: block
+  display: block;
 }
 
 :where(img, picture, svg, video) {
   max-inline-size: 100%;
-  block-size: auto
+  block-size: auto;
 }
 
 :where(p, h1, h2, h3, h4, h5, h6) {
-  overflow-wrap: break-word
+  overflow-wrap: break-word;
 }
 
 :where(h1, h2, h3) {
   line-height: calc(1em + 0.5rem);
-  text-wrap: balance
+  text-wrap: balance;
 }
 
 :where(hr) {
@@ -87,17 +87,17 @@
   border-block-start: 1px solid;
   color: inherit;
   block-size: 0;
-  overflow: visible
+  overflow: visible;
 }
 
 :where(:focus-visible) {
   outline: 3px solid CanvasText;
   box-shadow: 0 0 0 5px Canvas;
-  outline-offset: 1px
+  outline-offset: 1px;
 }
 
 :where(:focus-visible, :target) {
-  scroll-margin-block: 8vh
+  scroll-margin-block: 8vh;
 }
 
 :where(.visually-hidden:not(:focus-within, :active)) {
@@ -107,7 +107,7 @@
   overflow: hidden !important;
   position: absolute !important;
   white-space: nowrap !important;
-  border: 0 !important
+  border: 0 !important;
 }
 
 h1 {
@@ -131,14 +131,26 @@ h1 {
   --color-main-dark30: light-dark(hsl(200 70% 35%), hsl(200 70% 80%));
   --color-main-dark50: light-dark(hsl(200 70% 25%), hsl(200 70% 90%));
   --color-main-light30: light-dark(hsl(200 70% 80%), hsl(200 70% 35%));
-  --color-main-light30-50: light-dark(hsl(200 70% 80%/0.5), hsl(200 70% 35%/0.5));
-  --color-main-dark30-50: light-dark(hsl(200 70% 35%/0.5), hsl(200 70% 80%/0.5));
-  --gradient-main-type1: linear-giradient(var(--color-main-light30-50), var(--color-main-dark30-50));
+  --color-main-light30-50: light-dark(
+    hsl(200 70% 80%/0.5),
+    hsl(200 70% 35%/0.5)
+  );
+  --color-main-dark30-50: light-dark(
+    hsl(200 70% 35%/0.5),
+    hsl(200 70% 80%/0.5)
+  );
+  --gradient-main-type1: linear-giradient(
+    var(--color-main-light30-50),
+    var(--color-main-dark30-50)
+  );
 
   --color-accent: light-dark(hsl(25 90% 65%), hsl(25 70% 65%));
   --color-font: light-dark(var(--color-black), var(--color-white-gray));
   --color-background: light-dark(var(--color-white), var(--color-black));
-  --color-background-50: light-dark(var(--color-white-50), var(--color-black-50));
+  --color-background-50: light-dark(
+    var(--color-white-50),
+    var(--color-black-50)
+  );
 
   --font-gothic: "Noto Sans JP", sans-serif;
   --font-maru-gothic: "Zen Maru Gothic", serif;
@@ -155,12 +167,9 @@ h1 {
   color-scheme: light;
 }
 
-
-
 body {
   color: var(--color-font);
-  background:
-    linear-gradient(to bottom, transparent, var(--color-main)),
+  background: linear-gradient(to bottom, transparent, var(--color-main)),
     var(--color-background);
   transition: color 0.5s linear, background 0.5s linear;
   min-height: 100vh;
@@ -205,17 +214,16 @@ body {
   }
 }
 
-
 .c-title {
   display: grid;
   gap: 0.5rem;
 
-  &>h1 {
+  & > h1 {
     font-family: var(--font-decorative);
     font-size: 3em;
   }
 
-  &>h2 {
+  & > h2 {
     font-family: var(--font-decorative);
     font-size: 2em;
   }
@@ -306,28 +314,22 @@ body {
     z-index: 1;
     border: 1px solid var(--color-font);
     border-radius: 100vmax;
-    background-image:
-      url(../images/light_mode.svg),
+    background-image: url(../images/light_mode.svg),
       url(../images/dark_mode.svg),
-      linear-gradient(to right, var(--color-white) 0 50%, var(--color-black) 50% 100%);
+      linear-gradient(
+        to right,
+        var(--color-white) 0 50%,
+        var(--color-black) 50% 100%
+      );
 
-    background-size:
-      1rem 1rem,
-      1rem 1rem,
-      4rem 100%;
-    background-position:
-      center center,
-      left 180% center,
-      left center;
+    background-size: 1rem 1rem, 1rem 1rem, 4rem 100%;
+    background-position: center center, left 180% center, left center;
     background-repeat: no-repeat;
     transition: background-position linear 0.25s;
   }
 
   .c-settings-switch:has(:checked) &::after {
-    background-position:
-      right 180% center,
-      center center,
-      right center;
+    background-position: right 180% center, center center, right center;
   }
 }
 
@@ -376,7 +378,7 @@ body {
   transition: opacity ease-in 0.25s, color ease-in 0.25s;
 
   &:focus-within {
-    opacity: 1.0;
+    opacity: 1;
     border: 1px solid var(--color-accent);
     outline: none;
     box-shadow: 0 0 2px 2px var(--color-accent);
@@ -400,7 +402,7 @@ body {
   display: grid;
   position: relative;
 
-  &>* {
+  & > * {
     grid-area: 1/ 1/ -1/ -1;
   }
 }
@@ -464,6 +466,28 @@ body {
   display: flex;
 }
 
+.c-round-button {
+  display: grid;
+  place-items: center;
+  width: 6.5rem;
+  aspect-ratio: 2.5/ 1;
+  opacity: 0.8;
+  border-radius: 1.5rem;
+  border: 0.125rem solid var(--color-main-dark30-50);
+  font-family: var(--font-decorative);
+  line-height: 100%;
+  color: var(--color-main-dark30);
+  transition: all 0.25s linear;
+
+  &:is(:hover, :focus-within) {
+    opacity: 1;
+    border-color: var(--color-main);
+    box-shadow: 0 0 0.1rem 0.1rem var(--color-white);
+    background: var(--color-main);
+    color: var(--color-white);
+  }
+}
+
 .c-close-button {
   display: grid;
   place-items: center;
@@ -489,7 +513,7 @@ body {
 /* project */
 .p-header {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   padding-block: 1rem;
 }
@@ -647,7 +671,6 @@ body {
   padding-left: 0.5rem;
 }
 
-
 .p-option__legend {
   padding-inline: 0.5rem;
   font-family: var(--font-decorative);
@@ -667,28 +690,6 @@ body {
 .p-preview-controller {
   flex-shrink: 0;
   margin-top: 0.5rem;
-}
-
-.p-preview-controller__button {
-  display: grid;
-  place-items: center;
-  width: 6.5rem;
-  aspect-ratio: 2.5/ 1;
-  opacity: 0.8;
-  border-radius: 1.5rem;
-  border: 0.125rem solid var(--color-main-dark30-50);
-  font-family: var(--font-decorative);
-  line-height: 100%;
-  color: var(--color-main-dark30);
-  transition: all 0.25s linear;
-
-  &:is(:hover, :focus-within) {
-    opacity: 1;
-    border-color: var(--color-main);
-    box-shadow: 0 0 0.1rem 0.1rem var(--color-white);
-    background: var(--color-main);
-    color: var(--color-white);
-  }
 }
 
 .p-modal {
