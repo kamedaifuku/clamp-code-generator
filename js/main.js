@@ -267,27 +267,14 @@ class MyModalDialog {
     MODAL: 'js-modal__target',
     OPEN: 'js-modal__open',
     CLOSE: 'js-modal__close',
-    ANCESTOR_ANCHOR: 'js-anchors',
-    IS_SHOW: 'is-show'
+    ANCESTOR_ANCHOR: 'js-modal__anchors'
   };
-  static FOCUSABLE_ARGS = 'button, input, [href], select, textarea, summary, [tabindex]:not([tabindex="-1"])';
-
   constructor(modalElement) {
     this.modalElement = this.assignElementOrThrowError(modalElement);
     this.modalName = this.modalElement.dataset.name || this.throwUndefinedError(this.modalElement);
-    this.openElement =
-      this.getElementHasDataName(MyModalDialog.CLASSES.OPEN, this.modalName) ||
-      this.throwNullError(MyModalDialog.CLASSES.OPEN, this.modalName);
-    this.closeElement =
-      this.getElementHasDataName(MyModalDialog.CLASSES.CLOSE, this.modalName) ||
-      this.throwNullError(MyModalDialog.CLASSES.CLOSE, this.modalName);
-    this.ancestorAnchorElement = this.getElementHasDataName(MyModalDialog.CLASSES.ANCESTOR_ANCHOR, this.modalName);
-
-    this.isOpen = false;
-    this.focusableElements = [...this.modalElement.querySelectorAll(MyModalDialog.FOCUSABLE_ARGS)];
-    this.firstFocusableElement = this.focusableElements[0];
-    this.lastFocusableElement = this.focusableElements[this.focusableElements.length - 1];
-
+    this.openElement = this.getElementHasDataName('OPEN', this.modalName);
+    this.closeElement = this.getElementHasDataName('CLOSE', this.modalName);
+    this.ancestorAnchorElement = this.getElementHasDataName('ANCESTOR_ANCHOR', this.modalName, false);
     this.initEventListeners();
   }
 
@@ -303,12 +290,9 @@ class MyModalDialog {
   // モーダルのオンオフを制御
   openModal() {
     this.modalElement.showModal();
-    this.firstFocusableElement.focus();
-    this.isOpen = true;
   }
   closeModal() {
     this.modalElement.close();
-    this.isOpen = false;
   }
 
   // モーダル内のリンクをクリックした場合も閉じる
@@ -329,18 +313,21 @@ class MyModalDialog {
   }
 
   // 特定のデータ属性を持つ要素の取得処理
-  getElementHasDataName(className, dataName) {
-    return document.querySelector(`.${className}[data-name="${dataName}"]`);
-  }
-
-  //引数がundefinedの場合はエラー
-  throwUndefinedError(element) {
-    throw new Error(`class="${element.classList}"のモーダルの要素に[data-name]属性が未設定です`);
+  getElementHasDataName(classKey, dataName, isRequired = true) {
+    const className = MyModalDialog.CLASSES[classKey];
+    const element = document.querySelector(`.${className}[data-name="${dataName}"]`);
+    if (isRequired && !element) this.throwNullError(className, dataName);
+    return element;
   }
 
   // 要素が見つからない場合はエラー
   throwNullError(className, dataName) {
     throw new Error(`data-name="${dataName}", class="${className}"の要素が見つかりません`);
+  }
+
+  //引数がundefinedの場合はエラー
+  throwUndefinedError(element) {
+    throw new Error(`class="${element.classList}"のモーダルの要素に[data-name]属性が未設定です`);
   }
 }
 
