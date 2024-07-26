@@ -2,11 +2,9 @@
 /* メインのclamp()のコードの生成を管理する処理
   ------------------------------------------*/
 class ClampGenerator {
-  static CLASS_NAMES = {
+  static CLASSES = {
     inputs: 'js-inputs',
-    output_units: 'js-output-units',
-    output_property: 'js-output-property',
-    output_comment: 'js-output-comment',
+    options: 'js-options',
     output_area: 'js-output-area',
     output_button: 'js-output-button'
   };
@@ -29,18 +27,16 @@ class ClampGenerator {
       target.type === 'radio' ? this.toggleInputUnit(target) : this.updatePxValue(target);
       this.updateOutputText();
     });
-    this.targets.output_units.addEventListener('change', () => this.updateOutputText());
-    this.targets.output_property.addEventListener('change', () => this.updateOutputText());
-    this.targets.output_comment.addEventListener('change', () => this.updateOutputText());
+    this.targets.options.addEventListener('change', () => this.updateOutputText());
     this.targets.output_button.addEventListener('click', (event) =>
       this.copyClampFuncToClipBoard(this.outputTextData, event.target)
     );
   }
 
-  //CLASS_NAMESで定義した要素を一括取得するメソッド
+  //CLASSESで定義した要素を一括取得するメソッド
   getJsTargets() {
     const targets = {};
-    for (const [key, className] of Object.entries(ClampGenerator.CLASS_NAMES)) {
+    for (const [key, className] of Object.entries(ClampGenerator.CLASSES)) {
       targets[key] = document.querySelector(`.${className}`);
     }
     return targets;
@@ -109,8 +105,8 @@ class ClampGenerator {
 
   // 小数点以下の値を指定した桁数で四捨五入
   customRounded(value, args = 3) {
-    const desimalPlace = 10 ** args;
-    return Math.round(value * desimalPlace) / desimalPlace;
+    const decimalPlace = 10 ** args;
+    return Math.round(value * decimalPlace) / decimalPlace;
   }
 
   // アウトプットテキストの更新処理
@@ -121,12 +117,33 @@ class ClampGenerator {
 
   // Clamp式の生成
   setClampFuncText() {
-    const outputUnit = this.getSelectedValue('output_units');
-    const isRem = outputUnit === 'rem';
-    const outputProperty = this.getSelectedValue('output_property');
-    const isShowComment = this.getSelectedValue('output_comment') === 'true';
-    const values = {};
+    // inputのname属性
+    const NAME = {
+      unit: 'option-unit',
+      comment: 'option-comment',
+      property: 'option-property'
+    };
+
     const KEYS = ['minSize', 'maxSize', 'minVp', 'maxVp'];
+
+    // 単位付きの値を返す関数
+    const setConvertedValueWithUnits = (value, unit, isIntercept) => {
+      const isRem = unit === 'rem';
+      let convertedValue = isRem ? this.convertPxToRem(value) : value;
+      convertedValue = isIntercept ? Math.abs(this.customRounded(convertedValue)) : convertedValue;
+      return `${convertedValue}${unit}`;
+    };
+
+    // 出力オプションの選択値取得
+    const getCheckedOptionValue = (nameValue) => {
+      return this.targets.options.querySelector(`input[name="${nameValue}"]:checked`).value;
+    };
+
+    const currentUnit = getCheckedOptionValue(NAME.unit);
+    const outputProperty = getCheckedOptionValue(NAME.property);
+    const isShowComment = getCheckedOptionValue(NAME.comment) === 'true';
+
+    const values = {};
     for (const key of KEYS) values[key] = this.getPxValue(key);
     const vpDifference = values.maxVp - values.minVp;
     const sizeDifference = values.maxSize - values.minSize;
@@ -138,12 +155,11 @@ class ClampGenerator {
     const intercept = values.minSize - values.minVp * slope;
     const sign = intercept < 0 ? '-' : '+';
 
-    const minSizeStr = `${isRem ? this.convertPxToRem(values.minSize) : values.minSize}${outputUnit}`;
-    const maxSizeStr = `${isRem ? this.convertPxToRem(values.maxSize) : values.maxSize}${outputUnit}`;
+    // 出力処理
+    const minSizeStr = setConvertedValueWithUnits(values.minSize, currentUnit);
+    const maxSizeStr = setConvertedValueWithUnits(values.maxSize, currentUnit);
     const slopeStr = `${this.customRounded(slope * 100)}vw`;
-    const interceptStr = `${Math.abs(
-      this.customRounded(isRem ? this.convertPxToRem(intercept) : intercept)
-    )}${outputUnit}`;
+    const interceptStr = setConvertedValueWithUnits(intercept, currentUnit, true);
     const clampFunc = `clamp(${minSizeStr}, ${slopeStr} ${sign} ${interceptStr}, ${maxSizeStr})`;
     const outputFunc = outputProperty === 'none' ? clampFunc : `${outputProperty}: ${clampFunc};`;
     const comment = `/* size: ${values.minSize}px -> ${values.maxSize}px, viewport: ${values.minVp}px -> ${values.maxVp}px */`;
@@ -170,8 +186,7 @@ class ClampGenerator {
         "The difference between the viewport's minimum and maximum values ​​is 0, so a clamp function can't be generated."
       ]
     };
-    if (typeof Bilingual.EN_SWITCH !== 'string') return ERROR_TEXT.JP;
-    const isEn = document.querySelector(`.${Bilingual.EN_SWITCH}`).checked;
+    const isEn = appInstances?.bilingual?.isEnglish?.() ?? false;
     return isEn ? ERROR_TEXT.EN : ERROR_TEXT.JP;
   }
 
@@ -191,11 +206,6 @@ class ClampGenerator {
     });
   }
 
-  // 出力オプションの選択値取得
-  getSelectedValue(key) {
-    return this.targets[key].querySelector(`input:checked`).value;
-  }
-
   // pxベースの入力値取得処理
   getPxValue(name) {
     return this.inputData.find((data) => data.name === name).pxValue;
@@ -203,7 +213,7 @@ class ClampGenerator {
 }
 
 //インスタンス初期化処理
-const initClampGenerater = () => {
+const initClampGenerator = () => {
   try {
     return new ClampGenerator();
   } catch (error) {
@@ -214,51 +224,52 @@ const initClampGenerater = () => {
 
 /* ▲ ここまでclamp生成処理▲ */
 
-/* ビューポートを固定するインスタンスを生成するクラス
+/* プレビューを制御するクラス
   ------------------------------------------*/
-class FixedViewportForMobile {
-  static CONFIG = {
-    META_NAME: 'meta[name="viewport"]',
-    DEFAULT_WIDTH: 768
+class Preview {
+  static CLASSES = {
+    func: 'js-preview-func',
+    width: 'js-preview-width',
+    fontSize: 'js-preview-font-size',
+    widthText: 'js-preview-width-text',
+    outputText: 'js-preview-output-text'
   };
+
   constructor() {
-    this.viewportMeta = document.querySelector(FixedViewportForMobile.CONFIG.META_NAME);
-    if (!this.viewportMeta) throw new Error('<meta name="viewport">がHTMLに定義されていません');
-    this.currentContent = this.viewportMeta.content;
-    this.changeViewPort();
-    this.initEventListeners();
+    this.targets = this.getJsTargets();
   }
 
   //イベントリスナー初期設定
-  initEventListeners() {
-    window.addEventListener('resize', () => {
-      const DELAY = 25;
-      clearTimeout(this.timeoutID);
-      this.timeoutID = setTimeout(() => this.changeViewPort(), DELAY);
-    });
+  initEventListeners() {}
+
+  //CLASSESで定義した要素を一括取得するメソッド
+  getJsTargets() {
+    const targets = {};
+    for (const [key, className] of Object.entries(Preview.CLASSES)) {
+      targets[key] = document.querySelector(`.${className}`);
+    }
+    return targets;
   }
 
-  // ビューポートの値を変更する処理
-  changeViewPort() {
-    const mobileWidth = parseInt(this.viewportMeta.dataset.mobileWidth) || FixedViewportForMobile.CONFIG.DEFAULT_WIDTH;
-    if (!mobileWidth) return;
-    const newContent = window.outerWidth < mobileWidth ? `width=${mobileWidth}` : this.currentContent;
-    this.viewportMeta.content = newContent;
+  useClampGeneratorData(instance) {
+    // 渡されたインスタンスがClampGeneratorか判定
+    const INSTANCE_CLASS = ClampGenerator;
+    const isClampGenerator = instance instanceof INSTANCE_CLASS;
+    return isClampGenerator ? instance : null;
   }
 }
 
-/* インスタンスの初期化処理
-  ------------------------------------------*/
-const initFixedViewportForMobile = () => {
+//インスタンス初期化処理
+const initPreview = () => {
   try {
-    return new FixedViewportForMobile();
+    return new Preview();
   } catch (error) {
-    console.error(`[${FixedViewportForMobile.name}]:${error.message}`);
+    console.error(`[${Preview.name}]:${error.message}`);
     return null;
   }
 };
 
-/* ▲ ここまでビューポートの固定処理 ▲ */
+/* ▲ ここまでプレビュー処理▲ */
 
 /* モーダル制御処理を作成するクラス
   ------------------------------------------*/
@@ -358,6 +369,11 @@ class Bilingual {
     this.isJapanese = window.navigator.language === 'ja';
     if (!this.isJapanese) this.englishSwitch.checked = true;
   }
+
+  isEnglish() {
+    if (!this.englishSwitch) return false;
+    return this.englishSwitch.checked;
+  }
 }
 
 //インスタンス初期化処理
@@ -373,9 +389,9 @@ const initBilingual = () => {
 /* ▲ ここまで言語環境設定の固定処理 ▲ */
 const appInstances = {};
 const initAll = () => {
-  appInstances.clampGenerater = initClampGenerater();
-  appInstances.fixedViewportForMobile = initFixedViewportForMobile();
-  appInstances.modals = initModals();
   appInstances.bilingual = initBilingual();
+  appInstances.clampGenerator = initClampGenerator();
+  appInstances.modals = initModals();
+  appInstances.preview = initPreview();
 };
 initAll();
