@@ -1,12 +1,34 @@
 'use strict';
+/* 処理で使用するクラス名
+  ------------------------------------------*/
+class CommonData {
+  static CLASSES = {
+    INPUTS: 'js-inputs',
+    OPTIONS: 'js-options',
+    OUTPUT_AREA: 'js-output-area',
+    OUTPUT_BUTTON: 'js-output-button',
+    PREVIEW_FUNC: 'js-preview-func',
+    PREVIEW_WIDTH: 'js-preview-width',
+    PREVIEW_FONT_SIZE: 'js-preview-font-size',
+    PREVIEW_WIDTH_TEXT: 'js-preview-width-text',
+    PREVIEW_OUTPUT_TEXT: 'js-preview-output-text',
+    MODAL: 'js-modal__target',
+    MODAL_OPEN: 'js-modal__open',
+    MODAL_CLOSE: 'js-modal__close',
+    MODAL_ANCESTOR_ANCHOR: 'js-modal__anchors',
+    EN_SWITCH: 'js-en-switch'
+  };
+}
+
 /* メインのclamp()のコードの生成を管理する処理
   ------------------------------------------*/
 class ClampGenerator {
   static CLASSES = {
-    inputs: 'js-inputs',
-    options: 'js-options',
-    output_area: 'js-output-area',
-    output_button: 'js-output-button'
+    inputs: CommonData.CLASSES.INPUTS,
+    options: CommonData.CLASSES.OPTIONS,
+    outputArea: CommonData.CLASSES.OUTPUT_AREA,
+    outputButton: CommonData.CLASSES.OUTPUT_BUTTON,
+    modalOpen: CommonData.CLASSES.MODAL_OPEN
   };
   static PX_TO_REM_RATIO = 0.0625;
 
@@ -26,9 +48,10 @@ class ClampGenerator {
       const target = event.target;
       target.type === 'radio' ? this.toggleInputUnit(target) : this.updatePxValue(target);
       this.updateOutputText();
+      this.toggleButtonsDisabled(this.targets, this.outputTextData);
     });
     this.targets.options.addEventListener('change', () => this.updateOutputText());
-    this.targets.output_button.addEventListener('click', (event) =>
+    this.targets.outputButton.addEventListener('click', (event) =>
       this.copyClampFuncToClipBoard(this.outputTextData, event.target)
     );
   }
@@ -86,27 +109,17 @@ class ClampGenerator {
 
   //入力値の更新
   updatePxValue(target) {
+    const fitToRange = (input) => {
+      input.value = Math.max(input.min, Math.min(input.max, input.value));
+    };
+
     const changedData = this.inputData.find((data) => data.name === target.name);
     const isRem = this.currentUnits[changedData.category] === 'rem';
+    fitToRange(target);
     const newValue = isRem ? parseFloat(target.value) || 0 : parseInt(target.value) || 0;
     target.value = newValue;
     changedData.displayValue = newValue;
     changedData.pxValue = isRem ? this.convertRemToPx(newValue) : newValue;
-  }
-
-  //数値のPX<>REM変換
-  convertRemToPx(value) {
-    return parseInt(value / ClampGenerator.PX_TO_REM_RATIO);
-  }
-
-  convertPxToRem(value) {
-    return value * ClampGenerator.PX_TO_REM_RATIO;
-  }
-
-  // 小数点以下の値を指定した桁数で四捨五入
-  customRounded(value, args = 3) {
-    const decimalPlace = 10 ** args;
-    return Math.round(value * decimalPlace) / decimalPlace;
   }
 
   // アウトプットテキストの更新処理
@@ -124,13 +137,11 @@ class ClampGenerator {
       property: 'option-property'
     };
 
-    const KEYS = ['minSize', 'maxSize', 'minVp', 'maxVp'];
-
     // 単位付きの値を返す関数
-    const setConvertedValueWithUnits = (value, unit, isIntercept) => {
+    const setConvertedValueWithUnits = (value, unit, shouldRound = false) => {
       const isRem = unit === 'rem';
       let convertedValue = isRem ? this.convertPxToRem(value) : value;
-      convertedValue = isIntercept ? Math.abs(this.customRounded(convertedValue)) : convertedValue;
+      convertedValue = shouldRound ? Math.abs(this.customRounded(convertedValue)) : convertedValue;
       return `${convertedValue}${unit}`;
     };
 
@@ -138,40 +149,49 @@ class ClampGenerator {
     const getCheckedOptionValue = (nameValue) => {
       return this.targets.options.querySelector(`input[name="${nameValue}"]:checked`).value;
     };
-
     const currentUnit = getCheckedOptionValue(NAME.unit);
     const outputProperty = getCheckedOptionValue(NAME.property);
     const isShowComment = getCheckedOptionValue(NAME.comment) === 'true';
 
+    // 現在のインプットデータの値取得
+    const KEYS = ['minSize', 'maxSize', 'minVp', 'maxVp'];
     const values = {};
     for (const key of KEYS) values[key] = this.getPxValue(key);
-    const vpDifference = values.maxVp - values.minVp;
-    const sizeDifference = values.maxSize - values.minSize;
+    const { minSize, maxSize, minVp, maxVp } = values;
+
+    const vpDifference = maxVp - minVp;
+    const sizeDifference = maxSize - minSize;
+
+    // クランプ関数のデータ初期化
+    this.clampData = {};
 
     // vpの最大最小の差が無い場合はnullを返す。
     if (vpDifference === 0) return null;
 
+    // クランプ関数の傾き・切片取得
     const slope = sizeDifference / vpDifference;
-    const intercept = values.minSize - values.minVp * slope;
+    const intercept = minSize - minVp * slope;
     const sign = intercept < 0 ? '-' : '+';
 
     // 出力処理
-    const minSizeStr = setConvertedValueWithUnits(values.minSize, currentUnit);
-    const maxSizeStr = setConvertedValueWithUnits(values.maxSize, currentUnit);
+    const minSizeStr = setConvertedValueWithUnits(minSize, currentUnit);
+    const maxSizeStr = setConvertedValueWithUnits(maxSize, currentUnit);
     const slopeStr = `${this.customRounded(slope * 100)}vw`;
     const interceptStr = setConvertedValueWithUnits(intercept, currentUnit, true);
     const clampFunc = `clamp(${minSizeStr}, ${slopeStr} ${sign} ${interceptStr}, ${maxSizeStr})`;
     const outputFunc = outputProperty === 'none' ? clampFunc : `${outputProperty}: ${clampFunc};`;
-    const comment = `/* size: ${values.minSize}px -> ${values.maxSize}px, viewport: ${values.minVp}px -> ${values.maxVp}px */`;
-    this.clampData = { slope, intercept, clampFunc };
+    const comment = `/* size: ${minSize}px -> ${maxSize}px, viewport: ${minVp}px -> ${maxVp}px */`;
+
+    // クランプ関数のデータを取得してからリターン
+    this.clampData = { minSize, maxSize, slope, intercept, clampFunc };
     return isShowComment ? [outputFunc, comment] : [outputFunc];
   }
 
-  //出力テキスト更新処理
+  // 出力テキスト更新処理
   overwriteOutputText(argsData) {
     const IS_ERROR = 'is-error';
     const textData = argsData || this.setErrorText();
-    const outputElements = [...this.targets.output_area.querySelectorAll('p')];
+    const outputElements = [...this.targets.outputArea.querySelectorAll('p')];
     for (const [index, element] of outputElements.entries()) {
       element.textContent = textData[index];
       !argsData ? element.classList.add(IS_ERROR) : element.classList.remove(IS_ERROR);
@@ -190,6 +210,13 @@ class ClampGenerator {
     return isEn ? ERROR_TEXT.EN : ERROR_TEXT.JP;
   }
 
+  // ボタンの有効・無効切り替え処理
+  toggleButtonsDisabled(targets, textData) {
+    const isDisabled = !textData;
+    targets.outputButton.disabled = isDisabled;
+    targets.modalOpen.disabled = isDisabled;
+  }
+
   // クリップボードにclamp式をコピーする
   async copyClampFuncToClipBoard(textData, target) {
     if (!textData) return;
@@ -206,6 +233,20 @@ class ClampGenerator {
     });
   }
 
+  //数値のPX<>REM変換
+  convertRemToPx(value) {
+    return parseInt(value / ClampGenerator.PX_TO_REM_RATIO);
+  }
+
+  convertPxToRem(value) {
+    return value * ClampGenerator.PX_TO_REM_RATIO;
+  }
+
+  // 小数点以下の値を指定した桁数で四捨五入
+  customRounded(value, args = 3) {
+    const decimalPlace = 10 ** args;
+    return Math.round(value * decimalPlace) / decimalPlace;
+  }
   // pxベースの入力値取得処理
   getPxValue(name) {
     return this.inputData.find((data) => data.name === name).pxValue;
@@ -228,19 +269,33 @@ const initClampGenerator = () => {
   ------------------------------------------*/
 class Preview {
   static CLASSES = {
-    func: 'js-preview-func',
-    width: 'js-preview-width',
-    fontSize: 'js-preview-font-size',
-    widthText: 'js-preview-width-text',
-    outputText: 'js-preview-output-text'
+    func: CommonData.CLASSES.PREVIEW_FUNC,
+    width: CommonData.CLASSES.PREVIEW_WIDTH,
+    fontSize: CommonData.CLASSES.PREVIEW_FONT_SIZE,
+    widthText: CommonData.CLASSES.PREVIEW_WIDTH_TEXT,
+    outputText: CommonData.CLASSES.PREVIEW_OUTPUT_TEXT,
+    modalOpen: CommonData.CLASSES.MODAL_OPEN
   };
 
-  constructor() {
+  constructor(clampGenerator) {
     this.targets = this.getJsTargets();
+    this.generator = clampGenerator;
+    this.currentClampData = {};
+    this.initEventListeners();
   }
 
   //イベントリスナー初期設定
-  initEventListeners() {}
+  initEventListeners() {
+    this.targets.modalOpen.addEventListener('click', () => {
+      this.currentClampData = this.generator.clampData;
+      this.updateFuncText(this.currentClampData);
+    });
+  }
+
+  // 現在出力されるクランプ関数のテキストを反映する処理
+  updateFuncText(data) {
+    this.targets.func.textContent = data.clampFunc;
+  }
 
   //CLASSESで定義した要素を一括取得するメソッド
   getJsTargets() {
@@ -250,19 +305,20 @@ class Preview {
     }
     return targets;
   }
-
-  useClampGeneratorData(instance) {
-    // 渡されたインスタンスがClampGeneratorか判定
-    const INSTANCE_CLASS = ClampGenerator;
-    const isClampGenerator = instance instanceof INSTANCE_CLASS;
-    return isClampGenerator ? instance : null;
-  }
 }
 
 //インスタンス初期化処理
 const initPreview = () => {
+  // 渡されたインスタンスがClampGeneratorか判定
+  const useClampGeneratorData = (instance) => {
+    const isClampGenerator = instance instanceof ClampGenerator;
+    return isClampGenerator ? instance : null;
+  };
+
+  const clampGenerator = useClampGeneratorData(appInstances?.clampGenerator);
+  if (!clampGenerator) return null;
   try {
-    return new Preview();
+    return new Preview(clampGenerator);
   } catch (error) {
     console.error(`[${Preview.name}]:${error.message}`);
     return null;
@@ -275,17 +331,17 @@ const initPreview = () => {
   ------------------------------------------*/
 class MyModalDialog {
   static CLASSES = {
-    MODAL: 'js-modal__target',
-    OPEN: 'js-modal__open',
-    CLOSE: 'js-modal__close',
-    ANCESTOR_ANCHOR: 'js-modal__anchors'
+    modal: 'js-modal__target',
+    open: 'js-modal__open',
+    close: 'js-modal__close',
+    ancestorAnchor: 'js-modal__anchors'
   };
   constructor(modalElement) {
     this.modalElement = this.assignElementOrThrowError(modalElement);
     this.modalName = this.modalElement.dataset.name || this.throwUndefinedError(this.modalElement);
-    this.openElement = this.getElementHasDataName('OPEN', this.modalName);
-    this.closeElement = this.getElementHasDataName('CLOSE', this.modalName);
-    this.ancestorAnchorElement = this.getElementHasDataName('ANCESTOR_ANCHOR', this.modalName, false);
+    this.openElement = this.getElementHasDataName('open', this.modalName);
+    this.closeElement = this.getElementHasDataName('close', this.modalName);
+    this.ancestorAnchorElement = this.getElementHasDataName('ancestorAnchor', this.modalName, false);
     this.initEventListeners();
   }
 
@@ -345,7 +401,7 @@ class MyModalDialog {
 /* モーダルの制御処理を一括で初期化
   ------------------------------------------*/
 const initModals = () => {
-  const modalElements = [...document.querySelectorAll(`dialog.${MyModalDialog.CLASSES.MODAL}`)];
+  const modalElements = [...document.querySelectorAll(`dialog.${MyModalDialog.CLASSES.modal}`)];
   const modals = modalElements.map((modalElement) => {
     try {
       return new MyModalDialog(modalElement);
@@ -362,7 +418,7 @@ const initModals = () => {
 /* 日本語以外の言語環境の設定反映処理
   ------------------------------------------*/
 class Bilingual {
-  static EN_SWITCH = 'js-en-switch';
+  static EN_SWITCH = CommonData.CLASSES.EN_SWITCH;
 
   constructor() {
     this.englishSwitch = document.querySelector(`.${Bilingual.EN_SWITCH}`);
