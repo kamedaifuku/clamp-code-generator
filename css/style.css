@@ -127,22 +127,15 @@ h1 {
   --color-white-50: hsl(200 20% 98%/0.5);
   --color-white-gray: hsl(200 20% 88%);
   --color-gray: hsl(200 20% 50%);
-  --color-white-gray-50: hsl(200 20% 88%/0.5);
   --color-main: hsl(200 70% 50%);
-  --color-main-50: hsl(200 70% 50%/0.5);
   --color-main-dark30: light-dark(hsl(200 70% 35%), hsl(200 70% 80%));
-  --color-main-dark50: light-dark(hsl(200 70% 25%), hsl(200 70% 90%));
-  --color-main-light30: light-dark(hsl(200 70% 80%), hsl(200 70% 35%));
-  --color-main-light30-50: light-dark(
-    hsl(200 70% 80%/0.5),
-    hsl(200 70% 35%/0.5)
-  );
+  --color-main-light50: light-dark(hsl(200 70% 85%), hsl(200 70% 25%));
   --color-main-dark30-50: light-dark(
     hsl(200 70% 35%/0.5),
     hsl(200 70% 80%/0.5)
   );
 
-  --color-accent: light-dark(hsl(25 90% 65%), hsl(25 70% 65%));
+  --color-accent: light-dark(hsl(25 90% 50%), hsl(25 90% 65%));
   --color-font: light-dark(var(--color-black), var(--color-white-gray));
   --color-font-25: light-dark(var(--color-black-25), var(--color-white-25));
   --color-font-50: light-dark(var(--color-black-50), var(--color-white-50));
@@ -199,6 +192,14 @@ body {
 
 .l-modal {
   place-self: center;
+}
+
+.l-svg {
+  position: absolute;
+  z-index: -9999;
+  visibility: hidden;
+  width: 0;
+  height: 0;
 }
 
 /* component */
@@ -449,7 +450,8 @@ body {
     margin-left: -1px;
     border-left-color: transparent;
 
-    &:hover {
+    &:hover,
+    &:has(+ :checked) {
       border-left-color: currentcolor;
     }
   }
@@ -746,7 +748,7 @@ body {
   align-items: center;
   width: 100%;
   padding: 2rem;
-  background: var(--color-main-light30);
+  background: var(--color-main-light50);
   overflow: hidden;
 }
 
@@ -796,23 +798,6 @@ body {
   display: flex;
   gap: 1rem;
   align-items: center;
-
-  &:first-child::after {
-    content: "";
-    width: 1.75rem;
-    aspect-ratio: 16/ 9;
-    margin-left: 1rem;
-    background: currentColor;
-    clip-path: polygon(
-      0 40%,
-      60% 40%,
-      60% 0,
-      100% 50%,
-      60% 100%,
-      60% 60%,
-      0 60%
-    );
-  }
 }
 
 .p-preview-modal__output-inner {
@@ -822,7 +807,11 @@ body {
 }
 
 .p-preview-settings__output-value {
-  font-family: var(--font-fothic);
+  font-family: var(--font-gothic);
+}
+
+.p-preview-settings__icon {
+  color: var(--color-font-50);
 }
 
 .p-output__info {
