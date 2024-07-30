@@ -839,13 +839,12 @@ body {
 }
 
 .p-output__text {
-  --width: 1440px;
   width: var(--width);
   padding: 1rem;
   line-height: calc(100% + 1rem);
   border: none;
   background: var(--color-background);
-  resize: both;
+  resize: none;
   border-radius: 1rem;
   font-size: clamp(1rem, 7.292vw - 2.5rem, 6.25rem);
 }
