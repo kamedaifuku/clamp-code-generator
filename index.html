@@ -25,9 +25,6 @@
   <meta property="og:image" content="">
   <meta property="og:locale" content="ja_JP">
 
-  <!-- OGP Facebook -->
-  <meta property="fb:app_id" content="">
-
   <!-- OGP Twitter -->
   <meta name="twitter:card" content="">
   <meta name="twitter:site" content="">
@@ -258,11 +255,13 @@
             </p>
           </hgroup>
           <button type="button" class="c-close-button js-modal__close" data-name="preview">
-            <img src="./images/cancel.svg" alt="cancel_icon">
+            <svg>
+              <use href="images/close.svg#symbol" />
+            </svg>
           </button>
         </div>
         <div class="p-preview-func">
-          <p class="p-preview-func__name">
+          <p class="c-preview-category-name">
             <span class="c-lang-ja">現在の設定</span>
             <span class="c-lang-en">Current set</span>
           </p>
@@ -271,7 +270,7 @@
 
         <div class="p-preview-settings">
           <div class="p-preview-settings__box">
-            <label for="view-port-width" class="p-preview-func__name m-input-possible">
+            <label for="view-port-width" class="c-preview-category-name m-input-possible">
               <span class="c-lang-ja">検証するビューポート横幅</span>
               <span class="c-lang-en">Viewport width to test</span>
             </label>
@@ -279,7 +278,7 @@
               class="c-input__number js-preview-width">
           </div>
           <div class="p-preview-settings__box">
-            <p for="view-port-width" class="p-preview-func__name">
+            <p for="view-port-width" class="c-preview-category-name">
               <span class="c-lang-ja">表示される文字サイズ</span>
               <span class="c-lang-en">Displayed font size</span>
             </p>
@@ -293,6 +292,7 @@
             <textarea class="p-output__text js-preview-output-text" placeholder="任意の文字列を入力してください" rows="2"></textarea>
           </div>
         </div>
+      </div>
     </dialog>
     <footer class="l-footer p-footer">
     </footer>
