@@ -486,12 +486,16 @@ body {
   color: var(--color-main-dark30);
   transition: all 0.25s linear;
 
-  &:is(:hover, :focus-within) {
+  &:not(:disabled):is(:hover, :focus-within) {
     opacity: 1;
     border-color: var(--color-main);
     box-shadow: 0 0 0.1rem 0.1rem var(--color-white);
     background: var(--color-main);
     color: var(--color-white);
+  }
+
+  &:disabled {
+    opacity: 0.2;
   }
 }
 
@@ -625,17 +629,12 @@ body {
   }
 
   &:disabled {
-    cursor: default;
+    opacity: 0.2;
   }
 
   &:not(:disabled):is(:hover, :focus-within) {
     opacity: 1;
     box-shadow: 0 0 0.2rem var(--color-background-50);
-  }
-
-  .p-output:has(.is-error) & {
-    opacity: 0.2;
-    cursor: not-allowed;
   }
 }
 
