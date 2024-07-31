@@ -15,7 +15,6 @@ class CommonData {
     MODAL: 'js-modal__target',
     MODAL_OPEN: 'js-modal__open',
     MODAL_CLOSE: 'js-modal__close',
-    MODAL_ANCESTOR_ANCHOR: 'js-modal__anchors',
     EN_SWITCH: 'js-en-switch'
   };
 }
@@ -276,20 +275,67 @@ class Preview {
     outputText: CommonData.CLASSES.PREVIEW_OUTPUT_TEXT,
     modalOpen: CommonData.CLASSES.MODAL_OPEN
   };
+  // リサイズの発火間隔制御
+  static RESIZE_DELAY = 10;
 
   constructor(clampGenerator) {
     this.targets = this.getJsTargets();
     this.generator = clampGenerator;
     this.currentClampData = {};
+    this.timeoutId;
+    this.currentViewport = this.setCurrentWindowWith();
     this.initEventListeners();
   }
 
   //イベントリスナー初期設定
   initEventListeners() {
+    // プレビュー表示が有効になった場合の処理
     this.targets.modalOpen.addEventListener('click', () => {
       this.currentClampData = this.generator.clampData;
       this.updateFuncText(this.currentClampData);
+      this.targets.outputText.placeholder = this.setPlaceholderText();
+      this.setCurrentWindowWith();
     });
+
+    // inputの値変更監視
+    this.targets.width.addEventListener('change', (event) => {
+      this.currentViewport = event.target.value;
+      this.changeSimulatedValue();
+    });
+
+    // リサイズ監視
+    window.addEventListener('resize', () => {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = setTimeout(() => {
+        this.setCurrentWindowWith();
+      }, Preview.RESIZE_DELAY);
+    });
+  }
+
+  // 現在のブラウザの画面幅を反映
+  setCurrentWindowWith() {
+    this.currentViewport = window.innerWidth;
+    this.targets.width.value = this.currentViewport;
+    this.changeSimulatedValue();
+  }
+
+  changeSimulatedValue() {
+    const calcFontSize = (width, data) => {
+      const DIGITS = 100;
+      if (!data) return null;
+      const { minSize, maxSize, slope, intercept } = data;
+      const tempValue = Math.max(minSize, Math.min(maxSize, width * slope + intercept));
+      return Math.round(tempValue * DIGITS) / DIGITS;
+    };
+    const CSS_WIDTH = '--width';
+    const CSS_FONT = '--font';
+    const simulatedWidth = this.currentViewport;
+    const calculatedValue = calcFontSize(simulatedWidth, this.currentClampData);
+    console.log(calculatedValue);
+    this.targets.widthText.textContent = simulatedWidth;
+    this.targets.fontSize.textContent = calculatedValue;
+    this.targets.outputText.style.setProperty(CSS_WIDTH, `${simulatedWidth}px`);
+    this.targets.outputText.style.setProperty(CSS_FONT, `${calculatedValue}px`);
   }
 
   // 現在出力されるクランプ関数のテキストを反映する処理
@@ -304,6 +350,16 @@ class Preview {
       targets[key] = document.querySelector(`.${className}`);
     }
     return targets;
+  }
+
+  // プレースホルダーテキスト作成(英文対応)
+  setPlaceholderText() {
+    const PLACEHOLDER_TEXT = {
+      JP: ['任意の文字列を入力してください'],
+      EN: ['Please enter any string.']
+    };
+    const isEn = appInstances?.bilingual?.isEnglish?.() ?? false;
+    return isEn ? PLACEHOLDER_TEXT.EN : PLACEHOLDER_TEXT.JP;
   }
 }
 
@@ -331,17 +387,15 @@ const initPreview = () => {
   ------------------------------------------*/
 class MyModalDialog {
   static CLASSES = {
-    modal: 'js-modal__target',
-    open: 'js-modal__open',
-    close: 'js-modal__close',
-    ancestorAnchor: 'js-modal__anchors'
+    modal: CommonData.CLASSES.MODAL,
+    open: CommonData.CLASSES.MODAL_OPEN,
+    close: CommonData.CLASSES.MODAL_CLOSE
   };
   constructor(modalElement) {
     this.modalElement = this.assignElementOrThrowError(modalElement);
     this.modalName = this.modalElement.dataset.name || this.throwUndefinedError(this.modalElement);
     this.openElement = this.getElementHasDataName('open', this.modalName);
     this.closeElement = this.getElementHasDataName('close', this.modalName);
-    this.ancestorAnchorElement = this.getElementHasDataName('ancestorAnchor', this.modalName, false);
     this.initEventListeners();
   }
 
@@ -350,8 +404,6 @@ class MyModalDialog {
     this.openElement.addEventListener('click', () => this.openModal());
     this.closeElement.addEventListener('click', () => this.closeModal());
     this.modalElement.addEventListener('click', (event) => event.target === event.currentTarget && this.closeModal());
-    if (this.ancestorAnchorElement)
-      this.ancestorAnchorElement.addEventListener('click', (event) => this.closeModalIfLinkClicked(event));
   }
 
   // モーダルのオンオフを制御
@@ -360,13 +412,6 @@ class MyModalDialog {
   }
   closeModal() {
     this.modalElement.close();
-  }
-
-  // モーダル内のリンクをクリックした場合も閉じる
-  closeModalIfLinkClicked(event) {
-    const isLinkClicked = event.target.closest('a');
-    if (!isLinkClicked) return;
-    this.closeModal();
   }
 
   // *** DOMから取得した要素の検証処理 ***
