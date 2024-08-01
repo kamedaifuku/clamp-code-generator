@@ -711,6 +711,7 @@ body {
   margin-top: 0.5rem;
 }
 
+/* プレビューモーダル */
 .p-modal {
   display: grid;
   justify-items: center;
@@ -722,15 +723,13 @@ body {
   max-height: none;
   visibility: hidden;
   opacity: 0;
-  transition: all 0.5s;
+  transition: grid-template-rows 0.5s linear, z-index 0.5s linear,
+    visibility 0.5s linear, opacity 0.5s linear;
   border: none;
   outline: none;
   box-shadow: none;
   outline-offset: 0;
-
-  ::backdrop {
-    display: none;
-  }
+  background: var(--color-main-light50);
 
   &[open] {
     grid-template-rows: 1fr;
@@ -746,8 +745,8 @@ body {
   gap: 1.5rem;
   align-items: center;
   width: 100%;
+  height: 100%;
   padding: 2rem;
-  background: var(--color-main-light50);
   overflow: hidden;
 }
 
@@ -759,8 +758,9 @@ body {
 }
 
 .p-preview-modal__output {
-  display: grid;
-  justify-items: center;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
   width: 100vw;
   background: var(--color-background-25);
   overflow-y: hidden;
@@ -782,11 +782,6 @@ body {
   color: var(--color-main-dark30);
 }
 
-.p-preview-settings__output {
-  font-family: var(--font-decorative);
-  font-size: 1.25em;
-}
-
 .p-preview-settings {
   display: flex;
   gap: 2rem;
@@ -799,9 +794,15 @@ body {
   align-items: center;
 }
 
+.p-preview-settings__output {
+  height: 100%;
+  font-family: var(--font-decorative);
+  font-size: 1.25em;
+}
 .p-preview-modal__output-inner {
-  display: grid;
-  justify-items: center;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
   background: var(--color-background-25);
 }
 
@@ -841,12 +842,19 @@ body {
 .p-output__text {
   width: var(--width);
   padding: 1rem;
-  line-height: calc(100% + 1rem);
+  height: 100%;
   border: none;
   background: var(--color-background);
   resize: none;
   border-radius: 1rem;
-  font-size: clamp(1rem, 7.292vw - 2.5rem, 6.25rem);
+  font-size: var(--font);
+  font-family: var(--font-gothic);
+  line-height: calc(100% + 1rem);
+
+  &:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 2px currentColor;
+  }
 }
 
 /* animation */

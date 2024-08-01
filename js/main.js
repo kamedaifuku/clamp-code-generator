@@ -283,7 +283,7 @@ class Preview {
     this.generator = clampGenerator;
     this.currentClampData = {};
     this.timeoutId;
-    this.currentViewport = this.setCurrentWindowWith();
+    this.currentViewport;
     this.initEventListeners();
   }
 
@@ -306,9 +306,8 @@ class Preview {
     // リサイズ監視
     window.addEventListener('resize', () => {
       clearTimeout(this.timeoutId);
-      this.timeoutId = setTimeout(() => {
-        this.setCurrentWindowWith();
-      }, Preview.RESIZE_DELAY);
+      this.setCurrentWindowWith();
+      this.timeoutId = setTimeout(() => {}, Preview.RESIZE_DELAY);
     });
   }
 
@@ -331,7 +330,6 @@ class Preview {
     const CSS_FONT = '--font';
     const simulatedWidth = this.currentViewport;
     const calculatedValue = calcFontSize(simulatedWidth, this.currentClampData);
-    console.log(calculatedValue);
     this.targets.widthText.textContent = simulatedWidth;
     this.targets.fontSize.textContent = calculatedValue;
     this.targets.outputText.style.setProperty(CSS_WIDTH, `${simulatedWidth}px`);
