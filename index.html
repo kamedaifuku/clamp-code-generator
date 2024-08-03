@@ -242,18 +242,21 @@
     </main>
     <dialog class="l-modal p-modal js-modal__target" data-name="preview">
       <div class="p-preview-modal">
-        <div class="p-preview-modal__header">
+        <div class="p-preview-header">
           <hgroup class="c-title">
             <h2>
               <span class="c-lang-ja">プレビュー画面</span>
               <span class="c-lang-en">Preview Screen</span>
             </h2>
           </hgroup>
-          <button type="button" class="c-close-button js-modal__close" data-name="preview">
-            <svg>
-              <use href="#svg-close" />
-            </svg>
-          </button>
+          <div class="c-close">
+            <button type="button" class="c-close__button js-modal__close" data-name="preview">
+              <svg>
+                <use href="#svg-close" />
+              </svg>
+            </button>
+            <span class="c-close__label">close</span>
+          </div>
         </div>
         <div class="p-preview-info">
           <p>
