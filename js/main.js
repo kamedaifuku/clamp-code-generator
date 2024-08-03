@@ -284,6 +284,7 @@ class Preview {
     this.currentClampData = {};
     this.timeoutId;
     this.currentViewport;
+    this.currentInnerWidth;
     this.initEventListeners();
   }
 
@@ -313,7 +314,10 @@ class Preview {
 
   // 現在のブラウザの画面幅を反映
   setCurrentWindowWith() {
-    this.currentViewport = window.innerWidth;
+    const nextInnerWidth = window.innerWidth;
+    if (this.currentBrowserWidth === nextInnerWidth) return;
+    this.currentBrowserWidth = nextInnerWidth;
+    this.currentViewport = nextInnerWidth;
     this.targets.width.value = this.currentViewport;
     this.changeSimulatedValue();
   }
