@@ -357,6 +357,7 @@ body {
   display: grid;
   --height: 2px;
   width: 2em;
+  aspect-ratio: 1/ 1;
   z-index: -1;
   padding-inline: 0.125em;
   place-items: center;
@@ -371,11 +372,11 @@ body {
       opacity 0s 0.25s ease-in-out;
 
     &:nth-child(1) {
-      translate: 0 -0.5em;
+      translate: 0 -0.55em;
     }
 
     &:nth-child(3) {
-      translate: 0 0.5em;
+      translate: 0 0.55em;
     }
   }
 
@@ -706,7 +707,6 @@ body {
   place-items: center;
   z-index: 2;
   width: 2rem;
-  aspect-ratio: 1/ 1;
 
   @media (width < 768px) {
     display: grid;
