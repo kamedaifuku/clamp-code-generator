@@ -284,7 +284,7 @@ class Preview {
     this.currentClampData = {};
     this.timeoutId;
     this.currentViewport;
-    this.currentInnerWidth;
+    this.currentBrowserWidth;
     this.initEventListeners();
   }
 
@@ -306,16 +306,16 @@ class Preview {
 
     // リサイズ監視
     window.addEventListener('resize', () => {
+      const nextInnerWidth = window.innerWidth;
+      if (this.currentBrowserWidth === nextInnerWidth) return;
       clearTimeout(this.timeoutId);
-      this.setCurrentWindowWith();
+      this.setCurrentWindowWith(nextInnerWidth);
       this.timeoutId = setTimeout(() => {}, Preview.RESIZE_DELAY);
     });
   }
 
   // 現在のブラウザの画面幅を反映
-  setCurrentWindowWith() {
-    const nextInnerWidth = window.innerWidth;
-    if (this.currentBrowserWidth === nextInnerWidth) return;
+  setCurrentWindowWith(nextInnerWidth = window.innerWidth) {
     this.currentBrowserWidth = nextInnerWidth;
     this.currentViewport = nextInnerWidth;
     this.targets.width.value = this.currentViewport;
