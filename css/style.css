@@ -188,7 +188,7 @@ body {
   justify-items: center;
   grid-template-rows: auto 1fr auto;
   gap: 1.5em;
-  min-height: 100vh;
+  min-height: 100svh;
   overflow: clip;
   padding-inline: 2em;
 }
