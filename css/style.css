@@ -229,6 +229,7 @@ body {
   }
 }
 
+/* 見出し */
 .c-title {
   display: grid;
   gap: 0rem;
@@ -252,6 +253,7 @@ body {
   }
 }
 
+/* テキスト内のリンク */
 .c-text-link {
   color: var(--color-font);
   @media (any-hover: hover) {
@@ -266,6 +268,7 @@ body {
   }
 }
 
+/* 言語設定用スイッチ */
 .c-settings-switch {
   display: grid;
   justify-items: center;
@@ -332,6 +335,7 @@ body {
   }
 }
 
+/* ライト・ダークモード用スイッチ */
 .c-theme-switch__button {
   grid-area: 1/ 1/ 2/ -1;
   display: grid;
@@ -372,6 +376,7 @@ body {
   }
 }
 
+/* ハンバーガーメニュー */
 .c-hamburger {
   grid-area: 1/ 1/ 2/ -1;
   display: grid;
@@ -421,19 +426,7 @@ body {
   }
 }
 
-@keyframes ham-top {
-  0% {
-    translate: 0 -0.5em;
-  }
-  50% {
-    translate: 0;
-    rotate: 0;
-  }
-  100% {
-    translate: 0;
-  }
-}
-
+/* 入力欄の項目名 */
 .c-item-name {
   width: 6em;
   color: var(--color-accent);
@@ -443,6 +436,7 @@ body {
   font-size: 1.125em;
 }
 
+/* 入力欄グループ */
 .c-input {
   display: flex;
   gap: 0.5em;
@@ -460,12 +454,14 @@ body {
   }
 }
 
+/* 入力欄ラベル */
 .c-input__label {
   min-width: 2.25em;
   font-family: var(--font-decorative);
   font-size: 1em;
 }
 
+/* 入力欄のインプット要素 */
 .c-input__number {
   border: 1px solid var(--color-font);
   align-items: center;
@@ -496,6 +492,7 @@ body {
   }
 }
 
+/* スイッチ */
 .c-switches {
   display: flex;
   @media (width < 768px) {
@@ -576,6 +573,7 @@ body {
   display: flex;
 }
 
+/* 角丸ボタン */
 .c-round-button {
   display: grid;
   place-items: center;
@@ -612,6 +610,7 @@ body {
   }
 }
 
+/* SNSアイコン */
 .c-sns-icon {
   display: inline-block;
   width: 100%;
@@ -623,11 +622,14 @@ body {
   }
 }
 
+/* copyright */
 .c-copyright-text {
   font-size: 0.75em;
   line-height: 1;
 }
 
+/* 以下プレビュー画面のコンポーネント */
+/* クローズボタン */
 .c-close {
   display: grid;
   justify-items: center;
@@ -680,6 +682,7 @@ body {
   }
 }
 
+/* プレビューの項目名 */
 .c-preview-category-name {
   font-family: var(--font-decorative);
   font-size: 1.25em;
@@ -701,6 +704,7 @@ body {
   padding-block: 1.5em 1em;
 }
 
+/* ヘッダーメニュー */
 .p-display-settings {
   display: flex;
   justify-content: center;
@@ -739,6 +743,7 @@ body {
   }
 }
 
+/* モバイル画面（ハンバーガーメニュー）用 */
 .p-mobile-menu-button {
   align-self: flex-start;
   display: none;
@@ -758,6 +763,7 @@ body {
   gap: 1.5em;
 }
 
+/* 入力欄 */
 .p-inputs {
   padding: 1.5em 2em;
   border-radius: 2em;
@@ -783,6 +789,7 @@ body {
   }
 }
 
+/* 出力欄 */
 .p-output {
   display: flex;
   gap: 1.5em;
@@ -793,6 +800,7 @@ body {
   background: var(--color-background-50);
 }
 
+/* 出力するコードテキスト */
 .p-output__codes {
   flex-grow: 1;
   display: flex;
@@ -817,6 +825,7 @@ body {
   }
 }
 
+/* コピーボタン用 */
 .p-output__button-box {
   display: flex;
   position: relative;
@@ -888,6 +897,7 @@ body {
   }
 }
 
+/* その他オプション */
 .p-others {
   display: flex;
   gap: 1em 1.5em;
@@ -895,6 +905,7 @@ body {
   flex-flow: wrap;
 }
 
+/* 出力オプション用 */
 .p-option {
   flex-grow: 1;
   padding: 1rem 1.5rem;
@@ -934,6 +945,7 @@ body {
   }
 }
 
+/* プレビュー表示ボタン用 */
 .p-preview-controller {
   flex-shrink: 0;
   margin-top: 0.5rem;
@@ -998,6 +1010,7 @@ body {
   }
 }
 
+/* プレビューメインコンテンツ */
 .p-preview-modal {
   display: flex;
   flex-flow: column;
@@ -1013,6 +1026,7 @@ body {
   }
 }
 
+/* プレビューヘッダー */
 .p-preview-header {
   display: flex;
   justify-content: space-between;
@@ -1020,6 +1034,7 @@ body {
   width: min(100%, var(--content-width));
 }
 
+/* プレビュー説明文 */
 .p-preview-info {
   display: grid;
   gap: 0.125em;
@@ -1030,6 +1045,7 @@ body {
   }
 }
 
+/* 現在の設定表示 */
 .p-preview-func {
   display: flex;
   align-items: center;
@@ -1085,6 +1101,14 @@ body {
     rotate: 90deg;
   }
 }
+
+.p-preview-settings__output {
+  height: 100%;
+  font-family: var(--font-decorative);
+  font-size: 1.25em;
+}
+
+/* プレビュー表示画面 */
 .p-preview-modal__output {
   display: grid;
   justify-items: center;
@@ -1095,11 +1119,6 @@ body {
   scrollbar-color: var(--color-font-50) transparent;
 }
 
-.p-preview-settings__output {
-  height: 100%;
-  font-family: var(--font-decorative);
-  font-size: 1.25em;
-}
 .p-preview-modal__output-inner {
   display: flex;
   flex-flow: column;
