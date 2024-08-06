@@ -163,14 +163,16 @@ h1 {
   --content-width: min(100%, 50rem);
 }
 
+/* カラースキーム */
+:root {
+  color-scheme: light;
+}
+
 :root:has(#is-dark-theme:checked) {
   color-scheme: dark;
 }
 
-:root:not(:has(#is-dark-theme:checked)) {
-  color-scheme: light;
-}
-
+/* サイト基本設定 */
 body {
   color: var(--color-font);
   background: linear-gradient(to bottom, transparent, var(--color-main)),
