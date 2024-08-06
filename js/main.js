@@ -35,6 +35,7 @@ class ClampGenerator {
     this.targets = this.getJsTargets();
     this.currentUnits = this.initializeSelectedUnits(this.targets.inputs);
     this.inputData = this.initializeData(this.targets.inputs);
+    this.currentInputValue;
     this.clampData = {};
     this.outputTextData;
     this.updateOutputText();
@@ -43,13 +44,24 @@ class ClampGenerator {
 
   //イベントリスナー初期設定
   initEventListeners() {
+    // インプットフォーカス時の文字選択設定
+    this.targets.inputs.addEventListener('focusin', (event) => {
+      const target = event.target;
+      if (target.type === 'radio') return;
+      this.currentInputValue = target.value;
+      target.select();
+    });
+    // インプットの値変更時
     this.targets.inputs.addEventListener('change', (event) => {
       const target = event.target;
       target.type === 'radio' ? this.toggleInputUnit(target) : this.updatePxValue(target);
       this.updateOutputText();
       this.toggleButtonsDisabled(this.targets, this.outputTextData);
     });
+    // オプションの値変更時
     this.targets.options.addEventListener('change', () => this.updateOutputText());
+
+    // 出力関数のコピー用
     this.targets.outputButton.addEventListener('click', (event) =>
       this.copyClampFuncToClipBoard(this.outputTextData, event.target)
     );
@@ -111,9 +123,13 @@ class ClampGenerator {
     const fitToRange = (input) => {
       input.value = Math.max(input.min, Math.min(input.max, input.value));
     };
-
+    const restoreIfEmpty = (input) => {
+      if (input.value === '') input.value = this.currentInputValue;
+      this.currentInputValue = '';
+    };
     const changedData = this.inputData.find((data) => data.name === target.name);
     const isRem = this.currentUnits[changedData.category] === 'rem';
+    restoreIfEmpty(target);
     fitToRange(target);
     const newValue = isRem ? parseFloat(target.value) || 0 : parseInt(target.value) || 0;
     target.value = newValue;
@@ -298,9 +314,17 @@ class Preview {
       this.setCurrentWindowWith();
     });
 
-    // inputの値変更監視
+    // インプットフォーカス時の処理
+    this.targets.width.addEventListener('focusin', (event) => {
+      const target = event.target;
+      target.select();
+    });
+
+    // インプットの値変更時の処理
     this.targets.width.addEventListener('change', (event) => {
-      this.currentViewport = event.target.value;
+      const target = event.target;
+      if (target.value === '') target.value = this.currentViewport;
+      this.currentViewport = target.value;
       this.changeSimulatedValue();
     });
 
@@ -308,9 +332,8 @@ class Preview {
     window.addEventListener('resize', () => {
       const nextInnerWidth = window.innerWidth;
       if (this.currentBrowserWidth === nextInnerWidth) return;
-      clearTimeout(this.timeoutId);
       this.setCurrentWindowWith(nextInnerWidth);
-      this.timeoutId = setTimeout(() => {}, Preview.RESIZE_DELAY);
+      clearTimeout(this.timeoutId);
     });
   }
 

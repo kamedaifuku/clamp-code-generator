@@ -184,6 +184,11 @@ body {
   letter-spacing: 0.05em;
 }
 
+/* インプットの文字選択時の色設定 */
+input::selection {
+  background: var(--color-main-light50);
+}
+
 /* Layout */
 .l-body-wrapper {
   display: grid;
