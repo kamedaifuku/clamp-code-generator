@@ -720,9 +720,7 @@ input::selection {
   @media (width < 768px) {
     position: absolute;
     --inline-position: calc((100vw - 100%) / 2 * -1);
-    top: 0;
-    left: 0;
-    right: 0;
+    inset: 0 0 auto 0;
     padding-block: 1.5em;
     backdrop-filter: blur(3px);
     translate: 0 -100%;
